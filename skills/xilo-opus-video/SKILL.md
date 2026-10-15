@@ -9,6 +9,9 @@ description: >-
   product promo, kinetic-typography piece, pixel-art or retro animation, UI motion demo, or wants to recreate the look of a
   reference video in code — including Chinese requests like「做个视频」「用代码做视频」「做个动效」「做个宣传片」「帮我复刻这个视频」
   「Opus 做视频」. Also use when the user has AI-generated character clips (green screen) and wants code-built scenes around them.
+  Also turns a written script or article into a narrated vertical short video (one-pass TTS voiceover sped up to 1.25x,
+  word-level alignment to the script, hard subtitles, cover-first opening, cover image and publish copy) —
+  e.g.「把这篇文章做成视频」「文字稿转视频」「口播稿做成视频」「做个带配音的竖屏视频」.
   Not for generating footage with video models, editing in Premiere/CapCut/AE, or subtitling an existing video.
 ---
 
@@ -16,7 +19,7 @@ description: >-
 
 Opus 自己不输出视频。这个 skill 让它写一个会自己动的网页（或 Manim 场景），网页暴露 `render(t)`，由脚本一帧一帧截图，再用 FFmpeg 合成 MP4。声音也用代码合成或接语音模型。
 
-一句话提示词做视频是在抽卡：出来什么样、为什么这样、下次能不能再做出来，都不可控。这个 skill 的做法是**先把规划摆到用户面前，确认了再动手**：三个方案 → 每个方案一张关键帧或几秒预览 → 用户确认 → 写成 `brief.md` → 按 brief 逐镜头制作、逐镜头自检 → 交付。
+一句话提示词做视频是在抽卡：出来什么样、为什么这样、下次能不能再做出来，都不可控。这个 skill 的做法是**先把规划摆到用户面前，确认了再动手**：三个方案（每个都写清封面和开头黄金几秒）→ 每个方案一张关键帧或几秒预览 → 用户确认 → 写成 `brief.md` → 从封面和开头做起，按 brief 逐镜头制作、逐镜头自检 → 交付成片、封面图和发布文案。
 
 ## 工作目录
 
@@ -31,7 +34,11 @@ opus-video/<slug>/
   audio/         合成的配乐、音效、配音
   qa/            自检用的静帧和抽帧图
   out/final.mp4  成片
+  out/cover.png  封面图（第 0 帧的构图，贴纸贴好、不带字幕）
+  out/publish.txt  发布用的标题、简介、tags
 ```
+
+有配音的片子另外有 `audio/narration.txt`、`audio/scenes.json`、`timeline.js`，见 [references/voiceover-pipeline.md](references/voiceover-pipeline.md)。竖版讲解可以直接从 `templates/vertical-explainer/` 起步。
 
 ## 第 0 步：检查环境
 
@@ -47,7 +54,7 @@ opus-video/<slug>/
 
 用户给了现成的音乐时，先运行 `python3 scripts/audio_tools.py beats <音乐文件> > source/beats.json` 测出节拍、重拍和鼓点，方案和分镜都按这张节拍表来排。
 
-只追问会改变方案的信息，一次最多问 3 个：时长、画幅（16:9 / 9:16 / 1:1）、要不要配音、有没有指定的品牌色或字体。用户没说的用合理默认值（30 秒、1920×1080、30fps、代码合成配乐、不配音），在方案里写明，让用户改。
+只追问会改变方案的信息，一次最多问 3 个：时长、画幅（16:9 / 9:16 / 1:1）、要不要配音、有没有指定的品牌色或字体。用户没说的用合理默认值（30 秒、1920×1080、30fps、代码合成配乐、不配音；有配音时默认 1.25 倍速，见 craft-rules.md 声音一节），在方案里写明，让用户改。开头第一句默认写成一句暴论（前 5 秒内说完，见 opening-and-cover.md）。
 
 处理原材料：
 
@@ -60,7 +67,7 @@ opus-video/<slug>/
 
 三个方案要有明显差别，差别在风格、叙事结构或技术组合上，不能只是换个配色。常见的拉开方式：一个稳妥（最贴近原材料和参考），一个风格化（换一种画面语言），一个结构上大胆（换一种讲法，比如用一个贯穿全片的主角或者一个不切镜头的长镜头）。
 
-每个方案都要写画面概括（逐镜头的一两句话）、技术组合、声音、预计渲染耗时和风险。
+每个方案都要写画面概括（逐镜头的一两句话）、技术组合、声音、预计渲染耗时和风险，以及**封面帧和开头前 15 秒**（第 0 帧长什么样、开头旁白怎么说、画面怎么跟着动）。封面和开头按 [references/opening-and-cover.md](references/opening-and-cover.md) 写：第一帧就是封面，开头先给话题和反差、不给答案。原材料里找不到能当钩子的数字、反差、金句、背书或痛点时，先告诉用户补素材。
 
 ## 第 3 步：给每个方案做预览
 
@@ -68,7 +75,7 @@ opus-video/<slug>/
 
 每个方案的预览页只搭一个镜头，时间用这个镜头自己的时间（从 0 开始），不用搭整条时间轴。
 
-- 默认每个方案做 **一张关键帧**：只搭这个方案最有代表性的那一个镜头，用 `python3 scripts/render.py previews/plan-a.html previews/plan-a.png --still 2.0 --size 1920x1080`。
+- 默认每个方案做 **一张关键帧**，优先做**封面帧**（第 0 帧），它最能代表风格，也就是成片的封面；封面帧不足以体现风格时，再加一张最有代表性的镜头。用 `python3 scripts/render.py previews/plan-a.html previews/plan-a.png --still 2.0 --size 1920x1080`。
 - 方案的卖点在运动本身时（界面变形、节拍卡点、转场），改做 **2–4 秒的小样**：`python3 scripts/render.py previews/plan-b.html previews/plan-b.mp4 --size <方案画幅> --fps 30 --duration 3`。
 - 预览做出来后自己先看一遍图，明显的问题（字溢出、元素挤在一起、画面太空）先修，再给用户。
 - 方案里的「预计渲染耗时」用预览来估：渲染脚本会打印用时，单帧耗时 × 总帧数 × 子帧数，再乘 1.3 左右留余量。
@@ -86,9 +93,12 @@ opus-video/<slug>/
 制作规则在 [references/craft-rules.md](references/craft-rules.md)，动手前把整份读完。最要紧的几条：
 
 1. **画面只由时间决定**。`window.render(t)` 画出第 t 秒；不用 `requestAnimationFrame`、`setTimeout`、CSS transition，随机数带固定种子，帧和帧之间不保存状态。这样任何一帧都能单独重渲，改一个镜头不会影响别的镜头。
-2. **一个镜头一个镜头做**。每做完一个镜头，用 `render.py --still` 渲 3 张静帧，自己看：文字有没有溢出、元素有没有重叠、主体够不够大、字停留够不够久。修好再做下一个。30 秒以上的片子，所有镜头搭完后先渲一版 960×540、不加运动模糊的低清小样，节奏和转场对了再精修，精修前别花时间在细节上。
-3. **声音和画面用同一张时间表**。先定节拍网格或旁白时间轴，镜头切换和关键动作落在上面；音效放在画面动作发生的那一帧。配音整段合成，不要一句一句拼。
-4. **镜头要动**。推、拉、跟随，让主体在画面里足够大；brief 没写镜头的时候，Opus 默认会固定机位，画面容易显得空。
+2. **从封面和开头做起**。第一个做的就是第 0 帧封面和开头约 15 秒，按 opening-and-cover.md 的自检清单过一遍，通过了再往下做。
+3. **一个镜头一个镜头做**。每做完一个镜头，用 `render.py --still` 渲 3 张静帧，自己看：文字有没有溢出、元素有没有重叠、主体够不够大、字停留够不够久。修好再做下一个。30 秒以上的片子，所有镜头搭完后先渲一版 960×540、不加运动模糊的低清小样，节奏和转场对了再精修，精修前别花时间在细节上。
+4. **声音和画面用同一张时间表**。先定节拍网格或旁白时间轴，镜头切换和关键动作落在上面；音效放在画面动作发生的那一帧。配音整段合成，不要一句一句拼。
+5. **有配音就少放字**。旁白讲句子，画面只放关键词和图形：每屏一个短标题加最多一行注释，词在念到时已经在屏上，一段旁白念完这格就不再出新字。不要逐字打出整句旁白，细则见 craft-rules.md 的「有配音时的画面文字」。
+6. **有配音就按流水线走**。旁白整段合成、加速，用逐字时间戳生成场景切换点、动作点和字幕，命令和坑都在 [references/voiceover-pipeline.md](references/voiceover-pipeline.md)。
+7. **镜头要动**。推、拉、跟随，让主体在画面里足够大；brief 没写镜头的时候，Opus 默认会固定机位，画面容易显得空。
 
 用户点名框架时按框架来（Remotion / HyperFrames / Manim），没点名默认单个 HTML 文件，具体选择见 code-stack.md。
 
@@ -96,10 +106,25 @@ opus-video/<slug>/
 
 - 渲染：`python3 scripts/render.py index.html out/video.mp4 --size 1920x1080 --fps 30 --duration 30 --audio audio/mix.wav`，要运动模糊加 `--subframes 4`（渲染时间也会变成 4 倍，先告诉用户）。
 - 声音：音效用 `python3 scripts/audio_tools.py sfx timeline.json audio/sfx.wav` 按时间点合成，混好后 `audio_tools.py normalize` 到 -14 LUFS，再用 `audio_tools.py check audio/mix.wav --out qa/audio` 看响度和波形图。
-- 验收：`python3 scripts/analyze_video.py out/final.mp4 --out qa/final` 出抽帧图，再加一张手机尺寸的（`--cell-width 360`）。按 craft-rules.md 的「自检打分」给自己打分，列出最严重的 3 个问题和时间点，改完只重渲那几秒，重复到每项 8 分以上，再对照验收清单核对。把每一轮的分数和问题记在 `qa/review_log.md` 里，交付时一起给用户。
+- 每个场景搭完后，用 `python3 scripts/qa_stills.py index.html audio/timeline.json qa/scenes.png` 出「第 0 帧 + 每个场景最满状态」的拼图，先看这张再渲整片。
+- 验收：`python3 scripts/analyze_video.py out/final.mp4 --out qa/final` 出抽帧图，再加一张手机尺寸的（`--cell-width 360`）。按 craft-rules.md 的「自检打分」给自己打分（「开场」一项按 opening-and-cover.md 的自检清单打），列出最严重的 3 个问题和时间点，改完只重渲那几秒，重复到每项 8 分以上，再对照验收清单核对。把每一轮的分数和问题记在 `qa/review_log.md` 里，交付时一起给用户。
 - 有问题就回到对应镜头修，只重渲那一段也可以（`--start` / `--duration`），最后再整片合成。
 
 ## 交付
+
+出片的同时在 `out/` 放一张封面图 `cover.png`（导出方法见 opening-and-cover.md，视频第一帧就是这张封面），再写一个 `publish.txt`，方便直接复制到发布页。
+
+格式只有三段，段与段之间空一行，不写「【标题】」这类标签，不写分隔符，不写封面字、用法说明：
+
+```
+标题（20 字以内，空格不算；覆盖用户会搜的词）
+
+简介（一段，内容只来自原材料）
+
+#tag1 #tag2 #tag3 #tag4 #tag5
+```
+
+tags 只给 5 个（抖音最多 5 个），挑搜索量最大、和内容最贴的。备选标题、其他平台的 tags 需要时直接在回复里给，不写进这个文件。
 
 告诉用户：成片路径、`brief.md` 路径、工程目录，以及一段简短说明，包括这次的关键创作决定、已知的不足（比如某个镜头可以更好）、渲染用时。事实类内容里有不确定的地方，单独列出来让用户核对。
 
