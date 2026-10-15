@@ -36,6 +36,8 @@ The original is great at motion pieces without narration. This fork covers **nar
 - **Vertical explainer template** (`templates/vertical-explainer/`): frame 0 is the cover, scenes cross-fade, one-line hard subtitles at the bottom, plus stamps, chat bubbles, cards and a progress row. Swap the script, write a scene table, render.
 - **Cover and opening rules** (`references/opening-and-cover.md`): the first frame is the cover, no dates or title cards; a bold claim in the first 5 seconds; the opening sets up the contrast and leaves the answer to the body.
 - **Fewer words on screen when there is a voice**: the narration carries sentences, the screen shows keywords that appear when they are spoken.
+- **Fact-checking** (`references/fact-check.md` + `scripts/factcheck.py`): prices, quotas, data and deadlines are researched into a claims table (source URL + date + status) and the script is revised to match; before the final render a gate blocks any unverified claim and flags on-screen numbers that are not in the table.
+- **Parallel rendering** (`scripts/render_parallel.py`): split the timeline by frame, render ranges in several browsers at once, join losslessly; about 2.8x faster than sequential with the exact same frame count.
 - **QA contact sheet** (`scripts/qa_stills.py`): one command renders frame 0 and the fullest state of every scene into a single image.
 - **Ready to publish**: besides the MP4, `out/cover.png` (cover without subtitles) and `out/publish.txt` (title, description, 5 tags, ready to paste).
 
@@ -159,12 +161,15 @@ skills/xilo-opus-video/
     craft-rules.md            frames depend only on time, spring presets, multi-format, sound, scoring, checklist
     opening-and-cover.md      first frame is the cover, 5-second hook, opening timing, cover export (fork)
     voiceover-pipeline.md     narrated videos: command order, scenes.json, known pitfalls (fork)
+    fact-check.md             fact-checking: when, how to research, how to revise, gate before rendering (fork)
   scripts/
     check_env.py              checks Python / FFmpeg / Playwright / browser / WebGL
     render.py                 frame-by-frame rendering: stills, full video, segments, motion blur, audio mux
     analyze_video.py          video info, shot changes, contact sheets (reference analysis and final review)
     audio_tools.py            timed sound effects, beat detection, loudness normalization, waveform and spectrum images
     qa_stills.py              frame 0 + fullest state of every scene in one sheet (fork)
+    render_parallel.py        parallel rendering: frame ranges, several browsers, lossless join, frame-count check (fork)
+    factcheck.py              claims table: extract facts from the script, gate before the final render (fork)
     voice/                    tts.py synthesize + speed up / align.py word timestamps / timeline.py scenes and subtitles / mix.py mixing (fork)
   templates/
     vertical-explainer/       vertical explainer template: stage.js engine + a minimal example (fork)

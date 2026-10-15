@@ -56,6 +56,8 @@ xilo-opus-video 把这件事拆成了能确认、能复用的几步：
 - **竖版讲解模板**（`templates/vertical-explainer/`）：第 0 帧就是封面、场景淡入淡出、底部一行硬字幕、印章 / 气泡 / 卡片 / 进度条这些常用组件，换稿子、写一份场景表就能出片。
 - **封面与开头规则**（`references/opening-and-cover.md`）：第一帧就是封面，不放日期和片头；前 5 秒一句暴论；开头先给反差，答案留给正文。
 - **有配音就少放字**：旁白讲句子，画面只放关键词，念到哪个词哪个元素才出现。
+- **事实核查**（`references/fact-check.md` + `scripts/factcheck.py`）：价格、额度、数据、截止日期这类事实先调研、进核对表（出处 + 日期 + 状态），按核查结果改稿；渲正式版前过闸，还有没核实的就不让渲，画面上出现表里没有的数字也会提醒。
+- **并行渲染**（`scripts/render_parallel.py`）：时间轴按帧切段、多个浏览器同时渲、无损拼接，比顺序渲染快约 2.8 倍，帧数完全一致。
 - **自检拼图**（`scripts/qa_stills.py`）：一条命令渲出第 0 帧和每个场景最满的状态，拼成一张图检查。
 - **交付即可发布**：除了成片，还给 `out/cover.png`（不带字幕的封面图）和 `out/publish.txt`（标题、简介、5 个 tag，直接复制）。
 
@@ -161,12 +163,15 @@ skills/xilo-opus-video/
     craft-rules.md            画面只由时间决定、弹簧分档、多画幅、声音、自检打分、验收清单
     opening-and-cover.md      第一帧就是封面、前 5 秒暴论、开头时间结构、封面图导出（fork 新增）
     voiceover-pipeline.md     有配音的片子：命令顺序、scenes.json 写法、踩过的坑（fork 新增）
+    fact-check.md             事实核查：什么时候查、怎么调研、怎么改稿、出片前过闸（fork 新增）
   scripts/
     check_env.py              检查 Python / FFmpeg / Playwright / 浏览器 / WebGL
     render.py                 逐帧渲染：单帧预览、整片、只渲一段、运动模糊、混音
     analyze_video.py          视频信息、镜头切换时间点、抽帧拼图（参考视频分析和成片验收都用它）
     audio_tools.py            按时间表合成音效、测音乐节拍、响度标准化、波形和频谱图
     qa_stills.py              第 0 帧 + 每个场景最满状态的拼图（fork 新增）
+    render_parallel.py        并行渲染：按帧切段、多浏览器同时渲、无损拼接、核对帧数（fork 新增）
+    factcheck.py              事实核对表：extract 从稿子抽事实、gate 出片前过闸（fork 新增）
     voice/                    tts.py 合成加速 / align.py 逐词时间戳 / timeline.py 场景和字幕 / mix.py 混音（fork 新增）
   templates/
     vertical-explainer/       竖版讲解模板：stage.js 画面引擎 + 最小示例（fork 新增）

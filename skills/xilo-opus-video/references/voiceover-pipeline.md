@@ -9,7 +9,8 @@
 下面 `$S` 是本 skill 的目录，命令都在项目目录里跑。
 
 ```bash
-# 1. 旁白：audio/narration.txt，一段一行，纯文本
+# 1. 旁白：audio/narration.txt，一段一行，纯文本；有事实就先建核对表（见 fact-check.md）
+python3 $S/scripts/factcheck.py extract audio/narration.txt source/factcheck.md
 # 2. 合成并加速（默认 1.25 倍）；没有 GEMINI_API_KEY 就用 --backend edge（免费）
 python3 $S/scripts/voice/tts.py audio/narration.txt audio/voice.wav
 # 3. 逐词时间戳（Apple Silicon 用 mlx-whisper，其他机器换成 faster-whisper）
@@ -20,8 +21,9 @@ python3 $S/scripts/voice/timeline.py
 python3 $S/scripts/qa_stills.py index.html audio/timeline.json qa/scenes.png
 # 6. 配乐 + 音效 + 旁白混音（-14 LUFS，峰值留够 AAC 编码的余量）
 python3 $S/scripts/voice/mix.py
-# 7. 渲染、封面图
-python3 $S/scripts/render.py index.html out/final.mp4 --size 1080x1920 --fps 30 --duration <timeline.json 的 total> --audio audio/mix.wav
+# 7. 事实闸门、并行渲染、封面图
+python3 $S/scripts/factcheck.py gate source/factcheck.md --narration audio/narration.txt --page index.html
+python3 $S/scripts/render_parallel.py index.html out/final.mp4 --size 1080x1920 --fps 30 --duration <timeline.json 的 total> --audio audio/mix.wav
 python3 $S/scripts/render.py "index.html?cover=1" out/cover.png --still <开头印章落下之后的秒数> --size 1080x1920
 ```
 

@@ -59,6 +59,7 @@ opus-video/<slug>/
 处理原材料：
 
 - **原内容**：提炼出核心信息、受众和必须出现的事实。事实只能来自原材料，不确定的就不写，不要替用户编功能、数字、年份。
+- **事实核查**：稿子里有价格、额度、数据、产品功能、截止日期、对第三方的描述，或者「最新 / 现在」这类会过期的说法时，按 [references/fact-check.md](references/fact-check.md) 先调研、建核对表（`scripts/factcheck.py extract`），按核查结果改稿，再把稿子和核对表一起交给用户确认。
 - **参考视频**：链接需要下载时，先告诉用户文件来源并征得同意再下载。然后运行 `python3 scripts/analyze_video.py <视频> --out source/ref`（`--out` 是文件名前缀，会生成 `source/ref-sheet.png`、`source/ref-info.txt`），它会输出时长、分辨率、帧率、镜头切换时间点和一张抽帧拼图。看拼图，写下参考视频的镜头结构、节奏、配色、字体和用到的代码类型（对照 [references/code-stack.md](references/code-stack.md)）。参考视频只学结构和手法，不照搬别人的素材和文案。
 
 ## 第 2 步：给三个方案
@@ -104,7 +105,8 @@ opus-video/<slug>/
 
 ## 第 6 步：渲染和验收
 
-- 渲染：`python3 scripts/render.py index.html out/video.mp4 --size 1920x1080 --fps 30 --duration 30 --audio audio/mix.wav`，要运动模糊加 `--subframes 4`（渲染时间也会变成 4 倍，先告诉用户）。
+- 渲染：`python3 scripts/render_parallel.py index.html out/final.mp4 --size 1920x1080 --fps 30 --duration 30 --audio audio/mix.wav`，把时间轴切成几段多进程同时渲，再无损拼接，比 `render.py` 快约 2.8 倍，帧数完全一致；要运动模糊加 `--subframes 4`（渲染时间也会变成 4 倍，先告诉用户）。只渲一小段检查时用 `render.py --start / --duration`。
+- 有核对表的片子，渲正式版之前先过闸：`python3 scripts/factcheck.py gate source/factcheck.md --narration audio/narration.txt --page index.html`，退出码不是 0 就先改。
 - 声音：音效用 `python3 scripts/audio_tools.py sfx timeline.json audio/sfx.wav` 按时间点合成，混好后 `audio_tools.py normalize` 到 -14 LUFS，再用 `audio_tools.py check audio/mix.wav --out qa/audio` 看响度和波形图。
 - 每个场景搭完后，用 `python3 scripts/qa_stills.py index.html audio/timeline.json qa/scenes.png` 出「第 0 帧 + 每个场景最满状态」的拼图，先看这张再渲整片。
 - 验收：`python3 scripts/analyze_video.py out/final.mp4 --out qa/final` 出抽帧图，再加一张手机尺寸的（`--cell-width 360`）。按 craft-rules.md 的「自检打分」给自己打分（「开场」一项按 opening-and-cover.md 的自检清单打），列出最严重的 3 个问题和时间点，改完只重渲那几秒，重复到每项 8 分以上，再对照验收清单核对。把每一轮的分数和问题记在 `qa/review_log.md` 里，交付时一起给用户。
@@ -126,7 +128,7 @@ opus-video/<slug>/
 
 tags 只给 5 个（抖音最多 5 个），挑搜索量最大、和内容最贴的。备选标题、其他平台的 tags 需要时直接在回复里给，不写进这个文件。
 
-告诉用户：成片路径、`brief.md` 路径、工程目录，以及一段简短说明，包括这次的关键创作决定、已知的不足（比如某个镜头可以更好）、渲染用时。事实类内容里有不确定的地方，单独列出来让用户核对。
+告诉用户：成片路径、`brief.md` 路径、工程目录，以及一段简短说明，包括这次的关键创作决定、已知的不足（比如某个镜头可以更好）、渲染用时。事实类内容里有不确定的地方，单独列出来让用户核对；带截止日期的活动、会过期的价格，单列成「发布前要再核的」。
 
 ## 遇到这些情况
 
