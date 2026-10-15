@@ -59,7 +59,7 @@ xilo-opus-video 把这件事拆成了能确认、能复用的几步：
 - **事实核查**（`references/fact-check.md` + `scripts/factcheck.py`）：价格、额度、数据、截止日期这类事实先调研、进核对表（出处 + 日期 + 状态），按核查结果改稿；渲正式版前过闸，还有没核实的就不让渲，画面上出现表里没有的数字也会提醒。
 - **并行渲染**（`scripts/render_parallel.py`）：时间轴按帧切段、多个浏览器同时渲、无损拼接，比顺序渲染快约 2.8 倍，帧数完全一致。
 - **自检拼图**（`scripts/qa_stills.py`）：一条命令渲出第 0 帧和每个场景最满的状态，拼成一张图检查。
-- **交付即可发布**：除了成片，还给 `out/cover.png`（不带字幕的封面图）和 `out/publish.txt`（标题、简介、5 个 tag，直接复制）。
+- **交付即可发布**：除了成片，还给不带字幕的封面图和 `out/publish.txt`（标题、简介、5 个 tag，直接复制）；成片和封面图按标题命名（`scripts/topic_name.py`），不同主题的视频文件名不会撞。
 
 模板示例（第 0 帧封面 + 每个场景最满的状态）：
 
@@ -146,7 +146,7 @@ brief.md     确认后的完整方案（结构化提示词，可以复用）
 index.html   成片的画面代码
 audio/       合成的配乐和音效
 qa/          自检用的静帧和抽帧图
-out/         成片 MP4、封面图 cover.png、发布文案 publish.txt
+out/         <主题名>.mp4、<主题名>-封面.png、发布文案 publish.txt
 ```
 
 ---
@@ -172,6 +172,7 @@ skills/xilo-opus-video/
     qa_stills.py              第 0 帧 + 每个场景最满状态的拼图（fork 新增）
     render_parallel.py        并行渲染：按帧切段、多浏览器同时渲、无损拼接、核对帧数（fork 新增）
     factcheck.py              事实核对表：extract 从稿子抽事实、gate 出片前过闸（fork 新增）
+    topic_name.py             用标题生成文件名，不同主题的视频不重名（fork 新增）
     voice/                    tts.py 合成加速 / align.py 逐词时间戳 / timeline.py 场景和字幕 / mix.py 混音（fork 新增）
   templates/
     vertical-explainer/       竖版讲解模板：stage.js 画面引擎 + 最小示例（fork 新增）

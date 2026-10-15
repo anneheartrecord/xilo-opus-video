@@ -21,10 +21,11 @@ python3 $S/scripts/voice/timeline.py
 python3 $S/scripts/qa_stills.py index.html audio/timeline.json qa/scenes.png
 # 6. 配乐 + 音效 + 旁白混音（-14 LUFS，峰值留够 AAC 编码的余量）
 python3 $S/scripts/voice/mix.py
-# 7. 事实闸门、并行渲染、封面图
+# 7. 先写好 out/publish.txt（标题 / 简介 / 5 个 tag），用标题生成文件名，再过事实闸门、并行渲染、导出封面图
+NAME=$(python3 $S/scripts/topic_name.py out/publish.txt)
 python3 $S/scripts/factcheck.py gate source/factcheck.md --narration audio/narration.txt --page index.html
-python3 $S/scripts/render_parallel.py index.html out/final.mp4 --size 1080x1920 --fps 30 --duration <timeline.json 的 total> --audio audio/mix.wav
-python3 $S/scripts/render.py "index.html?cover=1" out/cover.png --still <开头印章落下之后的秒数> --size 1080x1920
+python3 $S/scripts/render_parallel.py index.html "out/$NAME.mp4" --size 1080x1920 --fps 30 --duration <timeline.json 的 total> --audio audio/mix.wav
+python3 $S/scripts/render.py "index.html?cover=1" "out/$NAME-封面.png" --still <开头印章落下之后的秒数> --size 1080x1920
 ```
 
 ## scenes.json

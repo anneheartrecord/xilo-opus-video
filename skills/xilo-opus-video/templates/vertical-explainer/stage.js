@@ -1,7 +1,7 @@
 // Vertical explainer stage (1080×1920): frame 0 is the cover, scenes cross-fade, one-line hard subtitles.
 // index.html loads timeline.js and this file, defines EP = { pill, chips, HEAD, BODY } and calls startSeries(EP).
 // HEAD[name](t, c) draws the title area, BODY[name](t, c) the content area (y 560–1380); c holds the scene's cue times.
-// ?cover=1 hides subtitles, for exporting out/cover.png.
+// ?cover=1 hides subtitles, for exporting the cover image (out/<topic>-封面.png).
 const cv = document.getElementById('c'), g = cv.getContext('2d');
 const W = 1080, H = 1920;
 cv.width = innerWidth * (devicePixelRatio || 1); cv.height = innerHeight * (devicePixelRatio || 1);

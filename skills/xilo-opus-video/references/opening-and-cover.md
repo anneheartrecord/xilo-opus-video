@@ -39,7 +39,7 @@
 页面里加一个开关：地址带 `?cover=1` 时不画字幕。开头动画走完、贴纸都贴上之后，渲一张静帧作为上传平台用的封面：
 
 ```
-python3 scripts/render.py "index.html?cover=1" out/cover.png --still <开头动画结束后的秒数> --size 1080x1920
+python3 scripts/render.py "index.html?cover=1" "out/$(python3 scripts/topic_name.py out/publish.txt)-封面.png" --still <开头动画结束后的秒数> --size 1080x1920
 ```
 
 视频第 0 帧是这张图没有贴纸的版本，两者构图一致。
@@ -111,4 +111,4 @@ python3 scripts/render.py "index.html?cover=1" out/cover.png --still <开头动�
 
 - [ ] 开头没有自问自答、没有「今天我们来聊聊」、没有自我介绍
 
-- [ ] `out/cover.png` 已导出，和视频第 0 帧是同一套构图
+- [ ] `out/<主题名>-封面.png` 已导出，和视频第 0 帧是同一套构图

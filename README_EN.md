@@ -39,7 +39,7 @@ The original is great at motion pieces without narration. This fork covers **nar
 - **Fact-checking** (`references/fact-check.md` + `scripts/factcheck.py`): prices, quotas, data and deadlines are researched into a claims table (source URL + date + status) and the script is revised to match; before the final render a gate blocks any unverified claim and flags on-screen numbers that are not in the table.
 - **Parallel rendering** (`scripts/render_parallel.py`): split the timeline by frame, render ranges in several browsers at once, join losslessly; about 2.8x faster than sequential with the exact same frame count.
 - **QA contact sheet** (`scripts/qa_stills.py`): one command renders frame 0 and the fullest state of every scene into a single image.
-- **Ready to publish**: besides the MP4, `out/cover.png` (cover without subtitles) and `out/publish.txt` (title, description, 5 tags, ready to paste).
+- **Ready to publish**: besides the MP4, a cover image without subtitles and `out/publish.txt` (title, description, 5 tags, ready to paste); the video and cover are named after the title (`scripts/topic_name.py`), so videos on different topics never share a file name.
 
 Template example (frame 0 cover + the fullest state of each scene):
 
@@ -144,7 +144,7 @@ brief.md     the confirmed plan (a reusable structured prompt)
 index.html   the page that draws the video
 audio/       music, effects, voiceover
 qa/          stills and contact sheets for self-checks
-out/         final MP4, cover.png, publish.txt
+out/         <topic>.mp4, <topic>-封面.png, publish.txt
 ```
 
 ---
@@ -170,6 +170,7 @@ skills/xilo-opus-video/
     qa_stills.py              frame 0 + fullest state of every scene in one sheet (fork)
     render_parallel.py        parallel rendering: frame ranges, several browsers, lossless join, frame-count check (fork)
     factcheck.py              claims table: extract facts from the script, gate before the final render (fork)
+    topic_name.py             file name from the title, so different topics never collide (fork)
     voice/                    tts.py synthesize + speed up / align.py word timestamps / timeline.py scenes and subtitles / mix.py mixing (fork)
   templates/
     vertical-explainer/       vertical explainer template: stage.js engine + a minimal example (fork)

@@ -33,8 +33,8 @@ opus-video/<slug>/
   index.html     成片的画面代码（或 Remotion / HyperFrames / Manim 工程）
   audio/         合成的配乐、音效、配音
   qa/            自检用的静帧和抽帧图
-  out/final.mp4  成片
-  out/cover.png  封面图（第 0 帧的构图，贴纸贴好、不带字幕）
+  out/<主题名>.mp4       成片（文件名取自 publish.txt 的标题，见「交付」）
+  out/<主题名>-封面.png  封面图（第 0 帧的构图，贴纸贴好、不带字幕）
   out/publish.txt  发布用的标题、简介、tags
 ```
 
@@ -105,16 +105,23 @@ opus-video/<slug>/
 
 ## 第 6 步：渲染和验收
 
-- 渲染：`python3 scripts/render_parallel.py index.html out/final.mp4 --size 1920x1080 --fps 30 --duration 30 --audio audio/mix.wav`，把时间轴切成几段多进程同时渲，再无损拼接，比 `render.py` 快约 2.8 倍，帧数完全一致；要运动模糊加 `--subframes 4`（渲染时间也会变成 4 倍，先告诉用户）。只渲一小段检查时用 `render.py --start / --duration`。
+- 渲染：`python3 scripts/render_parallel.py index.html out/<主题名>.mp4 --size 1920x1080 --fps 30 --duration 30 --audio audio/mix.wav`，把时间轴切成几段多进程同时渲，再无损拼接，比 `render.py` 快约 2.8 倍，帧数完全一致；要运动模糊加 `--subframes 4`（渲染时间也会变成 4 倍，先告诉用户）。只渲一小段检查时用 `render.py --start / --duration`。
 - 有核对表的片子，渲正式版之前先过闸：`python3 scripts/factcheck.py gate source/factcheck.md --narration audio/narration.txt --page index.html`，退出码不是 0 就先改。
 - 声音：音效用 `python3 scripts/audio_tools.py sfx timeline.json audio/sfx.wav` 按时间点合成，混好后 `audio_tools.py normalize` 到 -14 LUFS，再用 `audio_tools.py check audio/mix.wav --out qa/audio` 看响度和波形图。
 - 每个场景搭完后，用 `python3 scripts/qa_stills.py index.html audio/timeline.json qa/scenes.png` 出「第 0 帧 + 每个场景最满状态」的拼图，先看这张再渲整片。
-- 验收：`python3 scripts/analyze_video.py out/final.mp4 --out qa/final` 出抽帧图，再加一张手机尺寸的（`--cell-width 360`）。按 craft-rules.md 的「自检打分」给自己打分（「开场」一项按 opening-and-cover.md 的自检清单打），列出最严重的 3 个问题和时间点，改完只重渲那几秒，重复到每项 8 分以上，再对照验收清单核对。把每一轮的分数和问题记在 `qa/review_log.md` 里，交付时一起给用户。
+- 验收：`python3 scripts/analyze_video.py out/<主题名>.mp4 --out qa/final` 出抽帧图，再加一张手机尺寸的（`--cell-width 360`）。按 craft-rules.md 的「自检打分」给自己打分（「开场」一项按 opening-and-cover.md 的自检清单打），列出最严重的 3 个问题和时间点，改完只重渲那几秒，重复到每项 8 分以上，再对照验收清单核对。把每一轮的分数和问题记在 `qa/review_log.md` 里，交付时一起给用户。
 - 有问题就回到对应镜头修，只重渲那一段也可以（`--start` / `--duration`），最后再整片合成。
 
 ## 交付
 
-出片的同时在 `out/` 放一张封面图 `cover.png`（导出方法见 opening-and-cover.md，视频第一帧就是这张封面），再写一个 `publish.txt`，方便直接复制到发布页。
+成片和封面图按主题命名，不同主题的视频文件名不能重复，**不要叫 `final.mp4`**：
+
+1. 渲正式版之前先写好 `out/publish.txt`（格式见下）。
+2. 用它的标题生成文件名：`NAME=$(python3 scripts/topic_name.py out/publish.txt)`，去掉空格、标点换成「-」，比如「AI 提问模板：说清四件事，一次写对」→ `AI提问模板-说清四件事-一次写对`。
+3. 成片 `out/$NAME.mp4`，封面图 `out/$NAME-封面.png`（导出方法见 opening-and-cover.md，视频第一帧就是这张封面）。
+4. 同一系列的几集，标题本身就要不一样（写上各自的主题），文件名才不会撞；同一主题的旧版要留着时，加后缀（`-无配音版`、`-横版`）。
+
+`publish.txt` 方便直接复制到发布页。
 
 格式只有三段，段与段之间空一行，不写「【标题】」这类标签，不写分隔符，不写封面字、用法说明：
 

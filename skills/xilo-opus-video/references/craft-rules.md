@@ -97,9 +97,9 @@ document.fonts.ready.then(() => { window.render(0); window.ready = true; });
 列出最严重的 3 个问题并标上时间点。重点找：旁白已经念完、画面还在逐字出字的时间段，切换时新旧文字叠在一起、居中大字加渐变背景的默认画面、角落里多余的标签和边框、缩放后变糊的字、循环接缝处的卡顿。
 
 快速动作附近的问题在抽帧图里容易漏掉，可以把那一段连续 12 帧拼成一条来看：
-`ffmpeg -ss 4.1 -i out/final.mp4 -vf "scale=320:-1,tile=12x1" -frames:v 1 qa/strip.png`
+`ffmpeg -ss 4.1 -i out/<主题名>.mp4 -vf "scale=320:-1,tile=12x1" -frames:v 1 qa/strip.png`
 
-循环视频把成片连播两遍看接缝：`ffmpeg -stream_loop 1 -i out/final.mp4 -c copy qa/loop_check.mp4`
+循环视频把成片连播两遍看接缝：`ffmpeg -stream_loop 1 -i out/<主题名>.mp4 -c copy qa/loop_check.mp4`
 
 改完只重渲有问题的那几秒，再出新的抽帧图和新的分数，重复到每项 8 分以上。一般要两三轮，这是正常的。
 

@@ -2,8 +2,8 @@
 """Render a render(t) page in parallel: split the timeline into N frame ranges, render each with
 render.py in its own browser, join the pieces losslessly, then mux the audio once.
 
-  render_parallel.py index.html out/final.mp4 --size 1080x1920 --fps 30 --duration 94.2 --audio audio/mix.wav
-  render_parallel.py index.html out/final.mp4 --duration 30 --workers 6
+  render_parallel.py index.html out/<topic>.mp4 --size 1080x1920 --fps 30 --duration 94.2 --audio audio/mix.wav
+  render_parallel.py index.html out/<topic>.mp4 --duration 30 --workers 6
 
 Because render(t) depends only on t, every frame range can be rendered independently. Ranges are cut on
 frame numbers, so the joined video has exactly round(fps * duration) frames, the same as render.py.
