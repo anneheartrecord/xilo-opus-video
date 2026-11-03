@@ -1,17 +1,14 @@
 ---
 name: xilo-opus-video
 description: >-
-  Make videos with code (Canvas / HTML-CSS-SVG / WebGL shaders / Three.js / Remotion / HyperFrames / Manim + code-synthesized sound),
-  rendered frame by frame with Playwright + FFmpeg. Asks what the user wants to make (an idea, source content such as an article,
-  script, product page or codebase, or a reference video), proposes three distinct video plans with shot-by-shot visual summaries,
-  renders a key-frame still or a few-second preview for each, and after the user confirms one, writes the full brief and builds
-  the finished MP4. Use whenever someone wants Claude to make, animate or render a video, motion graphic, animated explainer,
-  product promo, kinetic-typography piece, pixel-art or retro animation, UI motion demo, or wants to recreate the look of a
-  reference video in code — including Chinese requests like「做个视频」「用代码做视频」「做个动效」「做个宣传片」「帮我复刻这个视频」
-  「Opus 做视频」. Also use when the user has AI-generated character clips (green screen) and wants code-built scenes around them.
-  Also turns a written script or article into a narrated vertical short video (one-pass TTS voiceover sped up to 1.25x,
-  word-level alignment to the script, hard subtitles, cover-first opening, cover image and publish copy) —
-  e.g.「把这篇文章做成视频」「文字稿转视频」「口播稿做成视频」「做个带配音的竖屏视频」.
+  Make videos with code (Canvas / HTML-CSS-SVG / WebGL / Three.js / Remotion / HyperFrames / Manim + code-synthesized
+  sound), rendered frame by frame with Playwright + FFmpeg: propose three plans with previews, then build the confirmed
+  one into an MP4. Also turns a script or article into a narrated vertical short (TTS voiceover, word-level alignment,
+  hard subtitles, cover and publish copy), and builds code scenes around AI-generated green-screen character clips.
+  Use whenever someone wants to make, animate or render a video, motion graphic, animated explainer, product promo,
+  kinetic typography, pixel-art or retro animation, UI motion demo, or recreate a reference video's look in code,
+  including「做个视频」「用代码做视频」「做个动效」「做个宣传片」「帮我复刻这个视频」「Opus 做视频」
+  「把这篇文章做成视频」「文字稿转视频」「口播稿做成视频」「做个带配音的竖屏视频」.
   Not for generating footage with video models, editing in Premiere/CapCut/AE, or subtitling an existing video.
 ---
 
